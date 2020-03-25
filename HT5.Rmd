@@ -1,0 +1,10 @@
+---
+title: "Hoja de Trabajo 05"
+author: "Gustavo de León y Andrés Urízar"
+date: "3/24/2020"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
