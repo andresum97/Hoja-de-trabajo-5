@@ -13,21 +13,34 @@ Predecir los precios con el algoritmo de Naives Bayes
 ```{r echo=FALSE}
   library(e1071)
   library(caret)
+  library(plyr)
   #Ubicacion de archivos en computadoras
-  #setwd("C:/Users/Gustavo/Desktop/SEPTIMO SEMESTRE/MINERIA/HDT4/laboratorio_05")
-  setwd("C:/Users/alber/Documents/UVG/Septimo semestre/Mineria de Datos/Hoja-Trabajo-5/Hoja-de-trabajo-5")
+  setwd("C:/Users/Gustavo/Desktop/SEPTIMO SEMESTRE/MINERIA/HDT5/Hoja-de-trabajo-5")
+  #setwd("C:/Users/alber/Documents/UVG/Septimo semestre/Mineria de Datos/Hoja-Trabajo-5/Hoja-de-trabajo-5")
 ```
+
 ```{r}
-  datos <- read.csv("train.csv", stringsAsFactors = FALSE)
+  train <- read.csv("train.csv", stringsAsFactors = FALSE)
+trainImportantes <- train[c("MSSubClass","LotFrontage","LotArea","OverallCond","YearBuilt","YearRemodAdd","X2ndFlrSF","FullBath","TotRmsAbvGrd","KitchenAbvGr","GarageCars","PoolArea","SalePrice")]
+trainImportantes[is.na(trainImportantes)]<-0
+
+
+km<-kmeans(trainImportantes,3)
+train$grupo<-km$cluster
+
+train$grupo <- mapvalues(train$grupo, c(3,2,1), c("Economica","Caro","Intermedio"))
+```
+
+```{r}
   porcentaje<-0.7
   set.seed(123)
-  corte <- sample(nrow(datos),nrow(datos)*porcentaje)
-  train0<-datos[corte,]
-  test0<-datos[-corte,]
+  corte <- sample(nrow(train),nrow(train)*porcentaje)
+  train0<-train[corte,]
+  test0<-train[-corte,]
 ```
 ### Se realiza el calculo de naives bayes
 ```{r}
-  modelo<-naiveBayes(SalePrice~.,data=train0)
-  predBayes<-predict(modelo, newdata = test0[,-81])
-  confusionMatrix(predBayes,test0$SalePrice)
+  modelo<-naiveBayes(as.factor(grupo)~.,data=train0)
+  predBayes<-predict(modelo, newdata = test0[,1:81])
+  confusionMatrix(predBayes,test0$grupo)
 ```
