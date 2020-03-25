@@ -8,3 +8,24 @@ output: word_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+## Objetivo
+Predecir los precios con el algoritmo de Naives Bayes
+```{r echo=FALSE}
+  #Ubicacion de archivos en computadoras
+  #setwd("C:/Users/Gustavo/Desktop/SEPTIMO SEMESTRE/MINERIA/HDT4/laboratorio_05")
+  setwd("C:/Users/alber/Documents/UVG/Septimo semestre/Mineria de Datos/Hoja-Trabajo-5/Hoja-de-trabajo-5")
+```
+```{r}
+  datos <- read.csv("train.csv", stringsAsFactors = FALSE)
+  porcentaje<-0.7
+  set.seed(123)
+  corte <- sample(nrow(datos),nrow(datos)*porcentaje)
+  train0<-datos[corte,]
+  test0<-datos[-corte,]
+```
+### Se realiza el calculo de naives bayes
+```{r}
+  modelo<-naiveBayes(SalePrice~.,data=train0)
+  predBayes<-predict(modelo, newdata = test0[,-81])
+  confusionMatrix(predBayes,test0$SalePrice)
+```
