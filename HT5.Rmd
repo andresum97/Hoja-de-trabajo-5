@@ -14,6 +14,7 @@ Predecir los precios con el algoritmo de Naives Bayes
   library(e1071)
   library(caret)
   library(plyr)
+  library(dplyr)
   #Ubicacion de archivos en computadoras
   setwd("C:/Users/Gustavo/Desktop/SEPTIMO SEMESTRE/MINERIA/HDT5/Hoja-de-trabajo-5")
   #setwd("C:/Users/alber/Documents/UVG/Septimo semestre/Mineria de Datos/Hoja-Trabajo-5/Hoja-de-trabajo-5")
@@ -22,6 +23,8 @@ Predecir los precios con el algoritmo de Naives Bayes
 ```{r}
   set.seed(123)
   datos <- read.csv("train.csv", stringsAsFactors = FALSE)
+  datos$Utilities <- NULL
+  #datos <- read.csv("train.csv") 
   datos$Alley <- mapvalues(datos$Alley, c(NA), c("None"))
   datos$MasVnrType <- mapvalues(datos$MasVnrType, c(NA), c("None"))
   datos$BsmtQual <- mapvalues(datos$BsmtQual, c(NA), c("None"))
@@ -43,13 +46,12 @@ Predecir los precios con el algoritmo de Naives Bayes
   datos$MasVnrArea <- mapvalues(datos$MasVnrArea, c(NA), c(0))
   datos$GarageYrBlt <- mapvalues(datos$GarageYrBlt, c(NA), c(0))
   
-
-
-
+  #datos[,c(1:2,4:5,18:21,27,35,37:39,44:53,55,57,60,62,63,67:72,76:78,81)] <- lapply(datos[,c(1:2,4:5,18:21,27,35,37:39,44:53,55,57,60,62,63,67:72,76:78,81)], as.numeric)
+  
   #is.na(datos)
   #datos <- na.omit(datos) 
 trainImportantes <- datos[c("MSSubClass","LotFrontage","LotArea","OverallCond","YearBuilt","YearRemodAdd","X2ndFlrSF","FullBath","TotRmsAbvGrd","KitchenAbvGr","GarageCars","PoolArea","SalePrice")]
-#trainImportantes[is.na(trainImportantes)]<-0
+trainImportantes[is.na(trainImportantes)]<-0
 
 
 
@@ -74,13 +76,13 @@ datos$grupo <- mapvalues(datos$grupo, c(1,2,3), c("Caro","Barato","Intermedio"))
 ```{r}
   modelo<-naiveBayes(as.factor(grupo)~.,data=train)
 
-  predBayes<-predict(modelo, newdata = test[,1:81])
+  predBayes<-predict(modelo, newdata = test[,1:80])
   confusionMatrix(table(predBayes,test$grupo))
 ```
 
 ```{r}
-ct<-trainControl(method = "cv",train[,1:81],number=10, verboseIter=T)
-modeloCaret<-train(grupo~.,data=datos[,2:82],method="nb",trControl = ct)
+ct<-trainControl(method = "cv",train[,2:80],number=10, verboseIter=T)
+modeloCaret<-train(grupo~.,data=datos,method="nb",trControl = ct)
 
 prediccionCaret<-predict(modeloCaret,newdata = test[,1:4])
 confusionMatrix(prediccionCaret,test$Species)
