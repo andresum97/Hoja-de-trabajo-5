@@ -28,7 +28,11 @@ trainImportantes[is.na(trainImportantes)]<-0
 km<-kmeans(trainImportantes,3)
 train$grupo<-km$cluster
 
-train$grupo <- mapvalues(train$grupo, c(3,2,1), c("Economica","Caro","Intermedio"))
+g1<- train[train$grupo==1,]
+g2<- train[train$grupo==2,]
+g3<- train[train$grupo==3,]
+
+train$grupo <- mapvalues(train$grupo, c(1,2,3), c("Caro","Barato","Intermedio"))
 ```
 
 ```{r}
