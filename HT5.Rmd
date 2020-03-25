@@ -11,6 +11,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Objetivo
 Predecir los precios con el algoritmo de Naives Bayes
 ```{r echo=FALSE}
+  library(e1071)
+  library(caret)
   #Ubicacion de archivos en computadoras
   #setwd("C:/Users/Gustavo/Desktop/SEPTIMO SEMESTRE/MINERIA/HDT4/laboratorio_05")
   setwd("C:/Users/alber/Documents/UVG/Septimo semestre/Mineria de Datos/Hoja-Trabajo-5/Hoja-de-trabajo-5")
