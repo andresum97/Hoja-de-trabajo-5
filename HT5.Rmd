@@ -42,5 +42,5 @@ train$grupo <- mapvalues(train$grupo, c(3,2,1), c("Economica","Caro","Intermedio
 ```{r}
   modelo<-naiveBayes(as.factor(grupo)~.,data=train0)
   predBayes<-predict(modelo, newdata = test0[,1:81])
-  confusionMatrix(predBayes,test0$grupo)
+  confusionMatrix(table(predBayes,test0$grupo))
 ```
