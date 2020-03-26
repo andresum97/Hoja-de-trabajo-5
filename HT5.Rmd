@@ -8,6 +8,7 @@ output: word_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 ## Objetivo
 Predecir los precios con el algoritmo de Naives Bayes
 ```{r echo=FALSE}
@@ -17,75 +18,77 @@ Predecir los precios con el algoritmo de Naives Bayes
   library(dplyr)
   library(lattice)
   #Ubicacion de archivos en computadoras
-  #setwd("C:/Users/Gustavo/Desktop/SEPTIMO SEMESTRE/MINERIA/HDT5/Hoja-de-trabajo-5")
-  setwd("C:/Users/alber/Documents/UVG/Septimo semestre/Mineria de Datos/Hoja-Trabajo-5/Hoja-de-trabajo-5")
-  set.seed(123)
+  setwd("C:/Users/Gustavo/Desktop/SEPTIMO SEMESTRE/MINERIA/HDT5/Hoja-de-trabajo-5")
+  #setwd("C:/Users/alber/Documents/UVG/Septimo semestre/Mineria de Datos/Hoja-Trabajo-5/Hoja-de-trabajo-5")
 ```
 
+## Selección de variables
+Se seleccionarán variables que consideramos importantes para la decisión del precio de una casa.
+Se usa la misma semilla 123 para repetir el conjunto de entrenamiento y de prueba
 ```{r}
+  set.seed(123)
   datos <- read.csv("train.csv", stringsAsFactors = FALSE)
-  #datos$Utilities <- NULL
-  #datos <- read.csv("train.csv") 
-  #datos$Alley <- mapvalues(datos$Alley, c(NA), c("None"))
-  #datos$MasVnrType <- mapvalues(datos$MasVnrType, c(NA), c("None"))
-  #datos$BsmtQual <- mapvalues(datos$BsmtQual, c(NA), c("None"))
-  #datos$BsmtCond <- mapvalues(datos$BsmtCond, c(NA), c("None"))
-  #datos$BsmtExposure <- mapvalues(datos$BsmtExposure, c(NA), c("None"))
-  #datos$BsmtFinType1 <- mapvalues(datos$BsmtFinType1, c(NA), c("None"))
-  #datos$BsmtFinType2 <- mapvalues(datos$BsmtFinType2, c(NA), c("None"))
-  #datos$Electrical <- mapvalues(datos$Electrical, c(NA), c("None"))
-  #datos$FireplaceQu <- mapvalues(datos$FireplaceQu, c(NA), c("None"))
-  #datos$GarageType <- mapvalues(datos$GarageType, c(NA), c("None"))
-  #datos$GarageFinish <- mapvalues(datos$GarageFinish, c(NA), c("None"))
-  #datos$GarageQual <- mapvalues(datos$GarageQual, c(NA), c("None"))
-  #datos$GarageCond <- mapvalues(datos$GarageCond, c(NA), c("None"))
-  #datos$PoolQC <- mapvalues(datos$PoolQC, c(NA), c("None"))
-  #datos$Fence <- mapvalues(datos$Fence, c(NA), c("None"))
-  #datos$MiscFeature <- mapvalues(datos$MiscFeature, c(NA), c("None"))
   
-  #datos$LotFrontage <- mapvalues(datos$LotFrontage, c(NA), c(0))
-  #datos$MasVnrArea <- mapvalues(datos$MasVnrArea, c(NA), c(0))
-  #datos$GarageYrBlt <- mapvalues(datos$GarageYrBlt, c(NA), c(0))
-  
-  #ifelse(is.na(datos), 0, datos)
-  
-  #datos[,c(1:2,4:5,18:21,27,35,37:39,44:53,55,57,60,62,63,67:72,76:78,81)] <- lapply(datos[,c(1:2,4:5,18:21,27,35,37:39,44:53,55,57,60,62,63,67:72,76:78,81)], as.numeric)
-  
-  #is.na(datos)
-  #datos <- na.omit(datos) 
 trainImportantes <- datos[c("MSSubClass","LotFrontage","LotArea","OverallCond","YearBuilt","YearRemodAdd","X2ndFlrSF","FullBath","TotRmsAbvGrd","GarageCars","SalePrice")]
 trainImportantes[is.na(trainImportantes)]<-0
-
-
-
-km<-kmeans(trainImportantes,3)
-trainImportantes$grupo<-km$cluster
-
-#g1<- train[train$grupo==1,]
-#g2<- train[train$grupo==2,]
-#g3<- train[train$grupo==3,]
-
-trainImportantes$grupo <- mapvalues(trainImportantes$grupo, c(1,2,3), c("Caro","Barato","Intermedio"))
 ```
 
+## Clusters
+Se harán 3 clusters (probados en hojas anteriores) para crear la variable categórica
+Con el Clustering se llegó a una variable categórica llamada grupos, esta variable se separa en barato, intermedio y caro. 
+Barato tuvo el rango de 34,900 a 173000
+Intermedio el rango de 173500 a 294000
+Caro el rango de 	295000 a 755000
+
+```{r}
+km<-kmeans(trainImportantes,3)
+trainImportantes$grupo<-km$cluster
+trainImportantes$grupo <- mapvalues(trainImportantes$grupo, c(1,2,3), c("Intermedio","Barato","caro"))
+```
+
+Se harán la división 70% para train y 30% para test
 ```{r}
   porcentaje<-0.7
-  
   corte <- sample(nrow(trainImportantes),nrow(trainImportantes)*porcentaje)
   train<-trainImportantes[corte,]
   test<-trainImportantes[-corte,]
 ```
+
 ### Se realiza el calculo de naives bayes
 ```{r}
   modelo<-naiveBayes(as.factor(grupo)~.,data=trainImportantes)
+```
+
+### Matriz de confusion
+Como se puede observar de 235 casas baratas acertó en 220 y falló diciendo que 1 es cara y 14 son intermedias.
+Como se puede observar de 42 casas caras acertó en 34 y no falló diciendo que alguna es barata y falló con 8 que son intermedias.
+Como se puede observar de 162 casas intermedias acertó en 143 y falló diciendo que 2 son caras y 17 que son intermedias.
+El modelo tuvo un 0.90 de Accurancy con 95% de índice de confianza puede ondular de 0.87 a 0.93. Analizando estos resultados se puede apreciar que solo hay un error del tipo que una casa sea barata y el modelo haya predicho que sea cara, y no hay ni uno que diga que sea barata cuando realmente es cara esto hace muy bueno el modelo. Los errores de intermedios son más comunes ya que está en medio de caro y barato, pero igual no fue muchos errores. Tiene una sensivity de 0.92 con las casas baratas y 0.918 con las caras. Con un Specifity de 0.92 para las baratas, 0.93 para las intermedias y 0.98 para las caras.
+
+
+```{r}
   predBayes<-predict(modelo, newdata = test[,1:11])
   confusionMatrix(table(predBayes,test$grupo))
 ```
 
+Se concluye que el modelo no tiene overfitting debido a que se ajustó bien con los datos de test como se habló previamente.
+
+## Cross Validation
 ```{r}
 ct<-trainControl(method = "cv", train,number=10, verboseIter=T)
 modeloCaret<-train(grupo~.,data=trainImportantes,method="nb",trControl = ct)
+```
 
+El modelo con validación cruzada tuvo un mejor Accurancy con un 0.94 sin embargo tuvo un poco más de problemas con el caro y barato como se verá a continuación.
+
+Como se puede observar de 231 casas baratas acertó en 223 y falló diciendo que 6 son caras y 2 son intermedias.
+Como se puede observar de 174 casas caras acertó en 158 y falló diciendo que 14 son baratas y falló con 2 que son intermedias.
+Como se puede observar de 34 casas intermedias acertó en 33 y no falló con las baratas y 1 cara.
+
+El modelo tuvo un 0.94 de Accurancy con 95% de índice de confianza puede ondular de 0.91 a 0.96. Analizando estos resultados se puede apreciar que tuvo más problemas colocando alguna casa cara como barata o viceversa, sin embargo, le pegó a una gran cantidad de casas de manera correcta. Este modelo tuvo 0.98 de Specificity para las casas caras y 0.92 para las baratas teniendo buen balance para predecir.
+
+### Matriz de confusion CV
+```{r}
 prediccionCaret<-predict(modeloCaret,newdata = test[,1:11])
 confusionMatrix(table(prediccionCaret,test$grupo))
 ```
