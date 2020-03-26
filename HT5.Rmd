@@ -19,8 +19,8 @@ Predecir los precios con el algoritmo de Naives Bayes
   library(lattice)
   library(rpart)
   #Ubicacion de archivos en computadoras
-  #setwd("C:/Users/Gustavo/Desktop/SEPTIMO SEMESTRE/MINERIA/HDT5/Hoja-de-trabajo-5")
-  setwd("C:/Users/alber/Documents/UVG/Septimo semestre/Mineria de Datos/Hoja-Trabajo-5/Hoja-de-trabajo-5")
+  setwd("C:/Users/Gustavo/Desktop/SEPTIMO SEMESTRE/MINERIA/HDT5/Hoja-de-trabajo-5")
+  #setwd("C:/Users/alber/Documents/UVG/Septimo semestre/Mineria de Datos/Hoja-Trabajo-5/Hoja-de-trabajo-5")
 ```
 
 ## Selección de variables
@@ -96,11 +96,15 @@ confusionMatrix(table(prediccionCaret,test$grupo))
 
 ### Se realiza la prediccion con un árbol de clasificación
 ```{r}
-trainRowsNumber<-sample(1:nrow(trainImportantes),porciento*nrow(trainImportantes))
-dt_model<-rpart(grupo~.,train,method = "class")
-prediccion <- predict(dt_model, newdata = test[,1:11])
+set.seed(1234)
+trainImportantes$SalePrice<-NULL
+trainRowsNumber<-sample(1:nrow(trainImportantes),porcentaje*nrow(trainImportantes))
+train1<-trainImportantes[trainRowsNumber,]
+test1<-trainImportantes[-trainRowsNumber,]
+dt_model<-rpart(grupo~.,train1,method = "class")
+prediccion <- predict(dt_model, newdata = test1[,1:10])
 columnaMasAlta<-apply(prediccion, 1, function(x) colnames(prediccion)[which.max(x)])
-test$prediccion<-columnaMasAlta
-cfm<-confusionMatrix(table(test$prediccion, test$grupo))
+test1$prediccion<-columnaMasAlta
+cfm<-confusionMatrix(table(test1$prediccion, test1$grupo))
 cfm
 ```
