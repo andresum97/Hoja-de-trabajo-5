@@ -19,8 +19,8 @@ Predecir los precios con el algoritmo de Naives Bayes
   library(lattice)
   library(rpart)
   #Ubicacion de archivos en computadoras
-  setwd("C:/Users/Gustavo/Desktop/SEPTIMO SEMESTRE/MINERIA/HDT5/Hoja-de-trabajo-5")
-  #setwd("C:/Users/alber/Documents/UVG/Septimo semestre/Mineria de Datos/Hoja-Trabajo-5/Hoja-de-trabajo-5")
+  #setwd("C:/Users/Gustavo/Desktop/SEPTIMO SEMESTRE/MINERIA/HDT5/Hoja-de-trabajo-5")
+  setwd("C:/Users/alber/Documents/UVG/Septimo semestre/Mineria de Datos/Hoja-Trabajo-5/Hoja-de-trabajo-5")
 ```
 
 ## Selección de variables
@@ -96,7 +96,6 @@ confusionMatrix(table(prediccionCaret,test$grupo))
 
 ### Se realiza la prediccion con un árbol de clasificación
 ```{r}
-set.seed(1234)
 trainImportantes$SalePrice<-NULL
 trainRowsNumber<-sample(1:nrow(trainImportantes),porcentaje*nrow(trainImportantes))
 train1<-trainImportantes[trainRowsNumber,]
@@ -108,3 +107,7 @@ test1$prediccion<-columnaMasAlta
 cfm<-confusionMatrix(table(test1$prediccion, test1$grupo))
 cfm
 ```
+Al realizar la predicción con un árbol de clasificación se obtuvo un Accuracy de 0.81, siendo inferior al Accuracy de Naives Bayes que fue de 0.90, con lo cual se puede concluir que para predicción es mejor naives bayes.
+Pero al comparar los tiempos con un Profiler se mostró que el árbol de clasificación tomaba 10ms en ejecutarse, mientras que naives bayes tomo 100ms, hay una diferencia grande entre los tiempos de ejecución
+de ambos algoritmos de predicción, siendo el árbol de clasificación el ganador.
+Depende de la persona que realice los calculos, si prefiere más precisión para predicción o prefiere resultados en un tiempo más corto, que con un dataset mucho más grande quizá la diferencia de tiempos si sea aún más grande, pero lo más importante para estos algoritmos es tener una predicción exacta.
